@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "YouTube Search New Tab",
   "description": "Opens YouTube search results in a new tab so you can search without stopping the current video.",
-  "version": "0.0.0.2",
+  "version": "1.0.3",
   "host_permissions": [
     "https://www.youtube.com/*"
   ],
