@@ -2,9 +2,14 @@
   "use strict";
 
   let currentUrl = window.location.href;
+  let buttonAdded = false;
+  let isProcessingClick = false;
+  let clickDebounceTimer = null;
 
   // poll for the search button periodically
   const pollForSearchButton = () => {
+    if (buttonAdded) return;
+    
     const intervalId = setInterval(() => {
       const searchButton =
         document.getElementById("search-icon-legacy") ||
@@ -15,10 +20,11 @@
         console.log("Search button found:", searchButton);
         clearInterval(intervalId);
         addNewTabButton(searchButton);
+        buttonAdded = true;
       } else {
         console.warn("Search button not found yet...");
       }
-    }, 50);
+    }, 100);
   };
 
   // create and insert a new button to open the search results in a new tab
@@ -29,41 +35,45 @@
         return;
       }
 
+      // Check if button already exists to prevent duplicates
       let newTabButton = document.getElementById("button-newTab");
+      if (newTabButton) {
+        console.log("Button already exists, not adding again.");
+        return;
+      }
+      
       const searchInput = document.querySelector('input[name="search_query"]');
 
-      if (!newTabButton) {
-        newTabButton = document.createElement("div");
-        newTabButton.id = "button-newTab";
-        newTabButton.setAttribute("aria-label", "Open search results in a new tab");
+      newTabButton = document.createElement("div");
+      newTabButton.id = "button-newTab";
+      newTabButton.setAttribute("aria-label", "Open search results in a new tab");
 
-        // styling
-        Object.assign(newTabButton.style, {
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          position: "relative",
-          width: "30px",
-          height: "30px",
-          border: "1px solid var(--ytd-searchbox-legacy-button-border-color)",
-          borderRadius: "5px",
-          marginLeft: "5px",
-          backgroundColor: "var(--ytd-searchbox-legacy-button-color)",
-          cursor: "pointer",
-          transition: "background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease"
-        });
+      // styling
+      Object.assign(newTabButton.style, {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+        width: "30px",
+        height: "30px",
+        border: "1px solid var(--ytd-searchbox-legacy-button-border-color)",
+        borderRadius: "5px",
+        marginLeft: "5px",
+        backgroundColor: "var(--ytd-searchbox-legacy-button-color)",
+        cursor: "pointer",
+        transition: "background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease"
+      });
 
-        // click effect
-        newTabButton.addEventListener("mousedown", () => {
-          newTabButton.style.transform = "scale(0.95)";
-        });
+      // click effect
+      newTabButton.addEventListener("mousedown", () => {
+        newTabButton.style.transform = "scale(0.95)";
+      });
 
-        newTabButton.addEventListener("mouseup", () => {
-          newTabButton.style.transform = "scale(1)";
-        });
+      newTabButton.addEventListener("mouseup", () => {
+        newTabButton.style.transform = "scale(1)";
+      });
 
-        insertAfter(newTabButton, searchButton);
-      }
+      insertAfter(newTabButton, searchButton);
 
       newTabButton.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 25" style="width: 75%; height: 75%;">
@@ -74,23 +84,47 @@
         </svg>
       `;
 
+      // Add debounced click handler
       newTabButton.addEventListener("click", () => {
+        // Prevent multiple simultaneous clicks
+        if (isProcessingClick) {
+          console.log("Click already in progress, ignoring.");
+          return;
+        }
+        
+        // Clear any existing timer
+        if (clickDebounceTimer) {
+          clearTimeout(clickDebounceTimer);
+        }
+        
+        // Set processing flag
+        isProcessingClick = true;
+        
+        // Process click
         if (!searchInput) {
           console.error("Search input not found");
+          isProcessingClick = false;
           return;
         }
 
         const queryTerm = searchInput.value.trim();
         if (queryTerm) {
           const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(queryTerm)}`;
-          chrome.runtime.sendMessage({ url });
           console.log(`Opening new tab with query: "${queryTerm}"`);
+          browser.runtime.sendMessage({ url, timestamp: Date.now() });
+          
+          // Reset processing flag after a delay
+          clickDebounceTimer = setTimeout(() => {
+            isProcessingClick = false;
+          }, 500); // 500ms debounce period
         } else {
           console.warn("No search query entered");
+          isProcessingClick = false;
         }
       });
     } catch (error) {
       console.error("Error in addNewTabButton:", error);
+      buttonAdded = false;
     }
   };
 
@@ -103,17 +137,60 @@
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   };
 
+  // Reset state when URL changes
+  const resetState = () => {
+    buttonAdded = false;
+    isProcessingClick = false;
+    if (clickDebounceTimer) {
+      clearTimeout(clickDebounceTimer);
+      clickDebounceTimer = null;
+    }
+  };
+
+  // Use MutationObserver to detect DOM changes
+  const setupMutationObserver = () => {
+    // Only observe the header area where search elements typically are
+    const targetNode = document.querySelector('ytd-masthead') || document.body;
+    if (!targetNode) return;
+    
+    const observer = new MutationObserver((mutations) => {
+      if (!buttonAdded) {
+        pollForSearchButton();
+      }
+    });
+    
+    observer.observe(targetNode, { 
+      childList: true, 
+      subtree: true 
+    });
+    
+    console.log("MutationObserver set up to detect DOM changes");
+  };
+
   // re-run when the URL changes (simple polling)
   const observeUrlChanges = () => {
     setInterval(() => {
       if (currentUrl !== window.location.href) {
         console.log("URL changed, rechecking for search button...");
         currentUrl = window.location.href;
+        resetState();
         pollForSearchButton();
       }
     }, 500);
   };
 
+  // Clean up any existing buttons on script (re)load
+  const cleanUpExistingButtons = () => {
+    const existingButton = document.getElementById("button-newTab");
+    if (existingButton) {
+      existingButton.remove();
+    }
+    resetState();
+  };
+
+  // Initialize
+  cleanUpExistingButtons();
   observeUrlChanges();
   pollForSearchButton();
+  setupMutationObserver();
 })();
