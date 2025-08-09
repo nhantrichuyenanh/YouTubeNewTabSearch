@@ -35,7 +35,7 @@
         return;
       }
 
-      // Check if button already exists to prevent duplicates
+      // check if button already exists to prevent duplicates
       let newTabButton = document.getElementById("button-newTab");
       if (newTabButton) {
         console.log("Button already exists, not adding again.");
@@ -75,6 +75,7 @@
 
       insertAfter(newTabButton, searchButton);
 
+      // button UI
       newTabButton.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 25" style="width: 75%; height: 75%;">
           <g>
@@ -84,23 +85,23 @@
         </svg>
       `;
 
-      // Add debounced click handler
+      // add debounced click handler
       newTabButton.addEventListener("click", () => {
-        // Prevent multiple simultaneous clicks
+        // prevent multiple simultaneous clicks
         if (isProcessingClick) {
           console.log("Click already in progress, ignoring.");
           return;
         }
         
-        // Clear any existing timer
+        // clear any existing timer
         if (clickDebounceTimer) {
           clearTimeout(clickDebounceTimer);
         }
         
-        // Set processing flag
+        // set processing flag
         isProcessingClick = true;
         
-        // Process click
+        // process click
         if (!searchInput) {
           console.error("Search input not found");
           isProcessingClick = false;
@@ -113,7 +114,7 @@
           console.log(`Opening new tab with query: "${queryTerm}"`);
           browser.runtime.sendMessage({ url, timestamp: Date.now() });
           
-          // Reset processing flag after a delay
+          // reset processing flag after a delay
           clickDebounceTimer = setTimeout(() => {
             isProcessingClick = false;
           }, 500); // 500ms debounce period
@@ -127,8 +128,7 @@
       buttonAdded = false;
     }
   };
-
-  // helper: insert a node after a reference node
+  
   const insertAfter = (newNode, referenceNode) => {
     if (!referenceNode || !referenceNode.parentNode) {
       console.error("Cannot insert after: Reference node missing.");
@@ -137,7 +137,7 @@
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   };
 
-  // Reset state when URL changes
+  // reset state when URL changes
   const resetState = () => {
     buttonAdded = false;
     isProcessingClick = false;
@@ -147,9 +147,9 @@
     }
   };
 
-  // Use MutationObserver to detect DOM changes
+  // use MutationObserver to detect DOM changes
   const setupMutationObserver = () => {
-    // Only observe the header area where search elements typically are
+    // only observe the header area where search elements typically are
     const targetNode = document.querySelector('ytd-masthead') || document.body;
     if (!targetNode) return;
     
@@ -167,7 +167,7 @@
     console.log("MutationObserver set up to detect DOM changes");
   };
 
-  // re-run when the URL changes (simple polling)
+  // re-run when URL changes
   const observeUrlChanges = () => {
     setInterval(() => {
       if (currentUrl !== window.location.href) {
@@ -179,7 +179,7 @@
     }, 500);
   };
 
-  // Clean up any existing buttons on script (re)load
+  // clean up any existing buttons on script (re)load
   const cleanUpExistingButtons = () => {
     const existingButton = document.getElementById("button-newTab");
     if (existingButton) {
@@ -188,7 +188,7 @@
     resetState();
   };
 
-  // Initialize
+  // initialize
   cleanUpExistingButtons();
   observeUrlChanges();
   pollForSearchButton();
