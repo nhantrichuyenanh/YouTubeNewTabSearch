@@ -5,14 +5,10 @@
   "author": "Nhân Trí",
   "version": "1.0.1",
   "homepage_url": "https://github.com/nhantrichuyenanh/YouTubeNewTabSearch",
-  "host_permissions": [
-    "https://www.youtube.com/*"
-  ],
+  "host_permissions": ["https://www.youtube.com/*"],
   "content_scripts": [
     {
-      "matches": [
-        "https://www.youtube.com/*"
-      ],
+      "matches": ["https://www.youtube.com/*"],
       "js": ["main.js"],
       "run_at": "document_idle"
     }
