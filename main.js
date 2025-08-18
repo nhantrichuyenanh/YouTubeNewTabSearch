@@ -59,12 +59,13 @@
 
       // styling
       Object.assign(newTabButton.style, {
-        display: "flex", // will be toggled immediately below
+        display: "flex",
         alignItems: "center",
         justifyContent: "center",
         position: "relative",
         width: "30px",
         height: "30px",
+        flexShrink: "0",
         border: "1px solid var(--ytd-searchbox-legacy-button-border-color)",
         borderRadius: "5px",
         marginLeft: "5px",
