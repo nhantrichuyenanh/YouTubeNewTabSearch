@@ -19,7 +19,6 @@
         document.querySelector('input[name="search_query"]');
 
       if (searchButton) {
-        console.log("Search button found:", searchButton);
         clearInterval(pollIntervalId);
         pollIntervalId = null;
         addNewTabButton(searchButton);
@@ -36,20 +35,17 @@
   const addNewTabButton = (searchButton) => {
     try {
       if (!searchButton) {
-        console.error("Cannot add new tab button: Search button not found.");
         return;
       }
 
       // prevent duplicates
       let newTabButton = document.getElementById("button-newTab");
       if (newTabButton) {
-        console.log("Button already exists, not adding again.");
         return;
       }
 
       const searchInput = document.querySelector('input[name="search_query"]');
       if (!searchInput) {
-        console.error("Search input not found.");
         return;
       }
 
@@ -114,7 +110,6 @@
       // add debounced click handler
       newTabButton.addEventListener("click", () => {
         if (isProcessingClick) {
-          console.log("Click already in progress, ignoring.");
           return;
         }
 
@@ -126,14 +121,12 @@
         const queryTerm = searchInput.value.trim();
         if (queryTerm) {
           const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(queryTerm)}`;
-          console.log(`Opening new tab with query: "${queryTerm}"`);
           browser.runtime.sendMessage({ url, timestamp: Date.now() });
 
           clickDebounceTimer = setTimeout(() => {
             isProcessingClick = false;
           }, 500);
         } else {
-          console.warn("No search query entered");
           isProcessingClick = false;
         }
       });
@@ -146,14 +139,69 @@
         }
       };
     } catch (error) {
-      console.error("Error in addNewTabButton:", error);
       buttonAdded = false;
     }
   };
 
+  const clickToSearch = () => {
+    const SUG_SELECTOR = '[role="option"], .ytSuggestionComponentText';
+
+    function getSuggestionText(el) {
+      if (!el) return '';
+      const aria = el.getAttribute && el.getAttribute('aria-label');
+      if (aria && aria.trim()) return aria.trim();
+      return (el.innerText || el.textContent || '').trim();
+    }
+
+    function openSuggestionInNewTab(el) {
+      const q = getSuggestionText(el);
+      if (!q) return;
+      const url = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
+      browser.runtime.sendMessage({ url, timestamp: Date.now() });
+    }
+
+    // Ctrl/Cmd + left click
+    function onClick(e) {
+      if (e.button !== 0) return;
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const opt = e.target.closest(SUG_SELECTOR);
+      if (!opt) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      openSuggestionInNewTab(opt);
+    }
+
+    // middle click
+    function onAuxClick(e) {
+      if (e.button !== 1) return;
+      const opt = e.target.closest(SUG_SELECTOR);
+      if (!opt) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      openSuggestionInNewTab(opt);
+    }
+
+    function onMouseDown(e) {
+      const isMiddle = e.button === 1;
+      const isCtrlLeft = e.button === 0 && (e.ctrlKey || e.metaKey);
+      if (!isMiddle && !isCtrlLeft) return;
+      const opt = e.target.closest(SUG_SELECTOR);
+      if (!opt) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
+
+    document.removeEventListener('click', onClick, true);
+    document.removeEventListener('auxclick', onAuxClick, true);
+    document.removeEventListener('mousedown', onMouseDown, true);
+
+    document.addEventListener('click', onClick, true);
+    document.addEventListener('auxclick', onAuxClick, true);
+    document.addEventListener('mousedown', onMouseDown, true);
+  };
+
   const insertAfter = (newNode, referenceNode) => {
     if (!referenceNode || !referenceNode.parentNode) {
-      console.error("Cannot insert after: Reference node missing.");
       return;
     }
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
@@ -185,8 +233,6 @@
       childList: true,
       subtree: true
     });
-
-    console.log("MutationObserver set up to detect DOM changes");
   };
 
   // re-run when URL changes
@@ -194,7 +240,6 @@
     // helper to call when SPA navigation occurs
     const handleNav = () => {
       if (currentUrl !== window.location.href) {
-        console.log("URL changed, rechecking for search button...");
         currentUrl = window.location.href;
         // remove existing button (and cleanup event listeners)
         const existingButton = document.getElementById("button-newTab");
@@ -206,6 +251,8 @@
         }
         resetState();
         pollForSearchButton();
+        // re-initialize search suggestion handlers after navigation
+        clickToSearch();
       }
     };
 
@@ -241,4 +288,5 @@
   observeUrlChanges();
   pollForSearchButton();
   setupMutationObserver();
+  clickToSearch();
 })();

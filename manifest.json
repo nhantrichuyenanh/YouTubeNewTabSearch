@@ -3,7 +3,7 @@
   "name": "YouTube Search New Tab",
   "description": "Opens YouTube search results in a new tab so you can search without stopping the current video.",
   "author": "Nhân Trí",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "homepage_url": "https://github.com/nhantrichuyenanh/YouTubeNewTabSearch",
   "host_permissions": ["https://www.youtube.com/*"],
   "content_scripts": [
