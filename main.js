@@ -23,7 +23,7 @@
     if (options.urlFormat === 'hashtag') {
       return `https://www.youtube.com/hashtag/${encodeURIComponent(query.trim().split(/\s+/)[0])}`;
     } else {
-      return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+      return `https://www.youtube.com/results?search_query=${encodeURIComponent(query).replace(/%20/g, '+')}`;
     }
   };
 
