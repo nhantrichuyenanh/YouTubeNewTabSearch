@@ -15,7 +15,6 @@
             --radius: 10px;
             --gap-md: 16px;
             --container-w: 760px;
-            --shadow: 0 6px 18px rgba(15, 15, 20, 0.04);
             --accent: AccentColor;
         }
 
@@ -29,7 +28,6 @@
             align-items: flex-start;
             justify-content: center;
             min-height: 100vh;
-            height: 100%;
             overflow: hidden;
             box-sizing: border-box;
         }
@@ -40,7 +38,7 @@
             width: 100%;
             max-width: var(--container-w);
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: var(--gap-md);
             align-items: start;
         }
@@ -54,7 +52,6 @@
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            gap: 8px;
         }
 
         .card h3 {
@@ -111,7 +108,7 @@
         }
 
         .info {
-            text-align: center;
+            text-align: right;
             font-size: 0.92rem;
             color: var(--muted);
             padding: 12px 8px;
@@ -119,12 +116,11 @@
 
         @media(prefers-color-scheme:dark) {
             :root {
-                --bg: #1c1b22;
+                --bg: #23222B;
                 --fg: #fbfbfe;
                 --muted: #bdbcc2;
                 --card-bg: #23222a;
                 --card-border: #444;
-                --shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
             }
 
             .range-input {
@@ -178,8 +174,17 @@
             </div>
         </div>
 
+        <!-- Tweaks -->
+        <div class="card" aria-labelledby="tweaks-title">
+            <h3 id="tweaks-title">Other Tweaks</h3>
+            <div class="radio-item">
+                <input type="checkbox" id="clear-after-click">
+                <label for="clear-after-click">Clear search results after clicking</label>
+            </div>
+        </div>
+
         <!-- Info -->
-        <div class="card info">
+        <div class="card info" style="text-align: center; grid-column: 1 / -1;">
             Your selection is automatically saved.
         </div>
 

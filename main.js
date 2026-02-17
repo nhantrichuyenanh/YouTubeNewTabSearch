@@ -115,6 +115,10 @@
             timestamp: Date.now(),
             tabBehavior: options.tabBehavior
           });
+          if (options.clearAfterClick) {
+              searchInput.value = '';
+              setVisibility();
+          }
           clickDebounceTimer = setTimeout(() => { isProcessingClick = false; }, options.debounceMs);
         } else {
           isProcessingClick = false;

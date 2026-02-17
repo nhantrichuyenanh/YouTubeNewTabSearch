@@ -4,7 +4,8 @@
   const DEFAULT_OPTIONS = {
     urlFormat: 'search',
     debounceMs: 500,
-    tabBehavior: 'background'
+    tabBehavior: 'background',
+    clearAfterClick: false,
   };
 
   const urlSearch = document.getElementById('url-search');
@@ -13,6 +14,7 @@
   const tabForeground = document.getElementById('tab-foreground');
   const debounceRange = document.getElementById('debounceRange');
   const debounceValue = document.getElementById('debounceValue');
+  const clearAfterClickCheckbox = document.getElementById('clear-after-click');
 
   let saveTimer = null;
 
@@ -36,6 +38,7 @@
       debounceRange.value = opts.debounceMs;
       debounceValue.textContent = `${opts.debounceMs}ms`;
 
+      clearAfterClickCheckbox.checked = !!opts.clearAfterClick;
     } catch (err) {
     }
   };
@@ -51,7 +54,8 @@
     const opts = {
       urlFormat: document.querySelector('input[name="urlFormat"]:checked')?.value || DEFAULT_OPTIONS.urlFormat,
       debounceMs: clamp(parseInt(debounceRange.value, 10) || DEFAULT_OPTIONS.debounceMs, 0, 1000),
-      tabBehavior: document.querySelector('input[name="tabBehavior"]:checked')?.value || DEFAULT_OPTIONS.tabBehavior
+      tabBehavior: document.querySelector('input[name="tabBehavior"]:checked')?.value || DEFAULT_OPTIONS.tabBehavior,
+      clearAfterClick: clearAfterClickCheckbox.checked,
     };
     saveOptions(opts);
   };
@@ -81,6 +85,7 @@
     document.querySelectorAll('input[name="tabBehavior"]').forEach(r => r.addEventListener('change', onRadioChange));
 
     debounceRange.addEventListener('input', onRangeInput);
+    clearAfterClickCheckbox.addEventListener('change', onRadioChange);
 
     browser.storage.onChanged.addListener((changes, area) => {
       if (area === 'sync') {
