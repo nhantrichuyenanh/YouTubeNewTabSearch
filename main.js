@@ -30,10 +30,7 @@
   const pollForSearchButton = () => {
     if (buttonAdded || pollIntervalId) return;
     const tryFind = () => {
-      const searchButton =
-        document.getElementById("search-icon-legacy") ||
-        document.getElementById("search-btn") ||
-        document.querySelector('input[name="search_query"]');
+      const searchButton = document.querySelector('input[name="search_query"]');
 
       if (searchButton) {
         clearInterval(pollIntervalId);
@@ -50,12 +47,12 @@
   const addNewTabButton = (searchButton) => {
     try {
       if (!searchButton) return;
-      let newTabButton = document.getElementById("button-newTab");
+      let newTabButton = document.getElementById("ytSearchboxComponentNewTabButton");
       if (newTabButton) return;
       const searchInput = document.querySelector('input[name="search_query"]');
       if (!searchInput) return;
       newTabButton = document.createElement("div");
-      newTabButton.id = "button-newTab";
+      newTabButton.id = "ytSearchboxComponentNewTabButton";
       newTabButton.setAttribute("aria-label", "Open search results in a new tab");
 
       Object.assign(newTabButton.style, {
@@ -66,23 +63,32 @@
         width: "30px",
         height: "30px",
         flexShrink: "0",
-        border: "1px solid var(--ytd-searchbox-legacy-button-border-color)",
-        borderRadius: "5px",
-        marginLeft: "5px",
-        backgroundColor: "var(--ytd-searchbox-legacy-button-color)",
         cursor: "pointer",
-        transition: "background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease"
+        borderRadius: "50%",
       });
-
-      newTabButton.addEventListener("mousedown", () => { newTabButton.style.transform = "scale(0.95)"; });
-      newTabButton.addEventListener("mouseup", () => { newTabButton.style.transform = "scale(1)"; });
       insertAfter(newTabButton, searchButton);
 
+      newTabButton.addEventListener("mouseenter", () => {
+        newTabButton.style.backgroundColor = "rgba(142, 129, 230, 0.20)";
+        newTabButton.style.boxShadow = "0 0 0 5px rgba(142, 129, 230, 0.20)";
+      });
+      newTabButton.addEventListener("mouseleave", () => {
+        newTabButton.style.backgroundColor = "transparent";
+        newTabButton.style.boxShadow = "none";
+      });
+
       newTabButton.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 25" style="width: 75%; height: 75%;">
-          <g>
-            <path style="fill: currentColor" d="M18.8,13.7c-0.2,0-0.4,0.2-0.4,0.4v6.2H3.6V5.8h6.3c0.2,0,0.4-0.2,0.4-0.4S10.1,5,9.9,5H3.2C3,5,2.8,5.2,2.8,5.4v15.3c0,0.2,0.2,0.4,0.4,0.4h15.6c0.2,0,0.4-0.2,0.4-0.4v-6.6C19.2,13.9,19.1,13.7,18.8,13.7z"></path>
-            <path style="fill: currentColor" d="M20.8,2.8h-6.7c-0.2,0-0.4,0.2-0.4,0.4s0.2,0.4,0.4,0.4h5.7L8.3,15.1c-0.2,0.2-0.2,0.4,0,0.6c0.1,0.1,0.2,0.1,0.3,0.1s0.2,0,0.3-0.1L20.4,4.3V10c0,0.2,0.2,0.4,0.4,0.4s0.4-0.2,0.4-0.4V3.3C21.2,3,21,2.8,20.8,2.8z"></path>
+        <svg xmlns="http://www.w3.org/2000/svg"
+            width="75%"
+            height="75%"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke=currentColor
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+          <g fill="none" fill-rule="evenodd">
+            <path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8c0-1.1.9-2 2-2h5 M15 3h6v6 M10 14L20.2 3.8"/>
           </g>
         </svg>
       `;
@@ -204,7 +210,7 @@
     const handleNav = () => {
       if (currentUrl !== window.location.href) {
         currentUrl = window.location.href;
-        const existingButton = document.getElementById("button-newTab");
+        const existingButton = document.getElementById("ytSearchboxComponentNewTabButton");
         if (existingButton) {
           if (typeof existingButton._cleanup === "function") existingButton._cleanup();
           existingButton.remove();
@@ -224,7 +230,7 @@
   };
 
   const cleanUpExistingButtons = () => {
-    const existingButton = document.getElementById("button-newTab");
+    const existingButton = document.getElementById("ytSearchboxComponentNewTabButton");
     if (existingButton) existingButton.remove();
     resetState();
   };
