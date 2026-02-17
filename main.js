@@ -70,8 +70,8 @@
       insertAfter(newTabButton, searchButton);
 
       newTabButton.addEventListener("mouseenter", () => {
-        newTabButton.style.backgroundColor = "rgba(142, 129, 230, 0.20)";
-        newTabButton.style.boxShadow = "0 0 0 5px rgba(142, 129, 230, 0.20)";
+        newTabButton.style.backgroundColor = "var(--yt-spec-outline)";
+        newTabButton.style.boxShadow = "0 0 0 5px var(--yt-spec-outline)";
       });
       newTabButton.addEventListener("mouseleave", () => {
         newTabButton.style.backgroundColor = "transparent";
