@@ -3,7 +3,7 @@
   "name": "YouTube Search New Tab",
   "description": "Opens YouTube search results in a new tab without interrupting the current watching session or toggling miniplayer mode.",
   "author": "Nhân Trí",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "homepage_url": "https://github.com/nhantrichuyenanh/YouTubeNewTabSearch",
   "host_permissions": ["https://www.youtube.com/*"],
   "content_scripts": [
@@ -30,7 +30,8 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "testing@email.com",
-      "strict_min_version": "109.0"
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {"required": ["none"]}
     }
   }
 }

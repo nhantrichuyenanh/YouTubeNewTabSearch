@@ -8,7 +8,8 @@
   let options = {
     urlFormat: 'search',
     debounceMs: 500,
-    tabBehavior: 'background'
+    tabBehavior: 'background',
+    clearAfterClick: false
   };
 
   const loadOptions = async () => {
@@ -117,6 +118,8 @@
           });
           if (options.clearAfterClick) {
               searchInput.value = '';
+              searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+              searchInput.dispatchEvent(new Event('change', { bubbles: true }));
               setVisibility();
           }
           clickDebounceTimer = setTimeout(() => { isProcessingClick = false; }, options.debounceMs);
