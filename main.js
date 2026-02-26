@@ -101,6 +101,30 @@
       };
 
       setVisibility();
+
+      const onKeyDown = (e) => {
+        if (e.key !== 'Enter') return;
+        if (!(e.shiftKey || e.ctrlKey || e.metaKey)) return;
+        const queryTerm = searchInput.value.trim();
+        if (!queryTerm) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        const url = generateSearchUrl(queryTerm);
+        browser.runtime.sendMessage({
+          url,
+          timestamp: `${Date.now()}-${Math.random()}`,
+          tabBehavior: options.tabBehavior
+        });
+        if (options.clearAfterClick) {
+          searchInput.value = '';
+          searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+          searchInput.dispatchEvent(new Event('change', { bubbles: true }));
+          setVisibility();
+        }
+      };
+
+      searchInput.addEventListener('keydown', onKeyDown, true);
+
       const inputListener = () => setVisibility();
       searchInput.addEventListener("input", inputListener);
 
@@ -113,7 +137,7 @@
           const url = generateSearchUrl(queryTerm);
           browser.runtime.sendMessage({
             url,
-            timestamp: Date.now(),
+            timestamp: `${Date.now()}-${Math.random()}`,
             tabBehavior: options.tabBehavior
           });
           if (options.clearAfterClick) {
@@ -130,6 +154,7 @@
 
       newTabButton._cleanup = () => {
         try { searchInput.removeEventListener("input", inputListener); } catch (e) {}
+        try { searchInput.removeEventListener("keydown", onKeyDown, true); } catch (e) {}
       };
     } catch (error) {
       buttonAdded = false;
@@ -137,7 +162,7 @@
   };
 
   const clickToSearch = () => {
-    const SUG_SELECTOR = '[role="option"], .ytSuggestionComponentText';
+    const SUG_SELECTOR = '[role="option"], .ytSuggestionComponentText, [role="presentation"]:has(.ytSuggestionComponentText)';
     function getSuggestionText(el) {
       if (!el) return '';
       const aria = el.getAttribute && el.getAttribute('aria-label');
@@ -151,7 +176,7 @@
       const url = generateSearchUrl(q);
       browser.runtime.sendMessage({
         url,
-        timestamp: Date.now(),
+        timestamp: `${Date.now()}-${Math.random()}`,
         tabBehavior: options.tabBehavior
       });
     }

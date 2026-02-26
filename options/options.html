@@ -107,13 +107,6 @@
             flex: 0 0 auto;
         }
 
-        .info {
-            text-align: right;
-            font-size: 0.92rem;
-            color: var(--muted);
-            padding: 12px 8px;
-        }
-
         @media(prefers-color-scheme:dark) {
             :root {
                 --bg: #23222B;
@@ -184,8 +177,11 @@
         </div>
 
         <!-- Info -->
-        <div class="card info" style="text-align: center; grid-column: 1 / -1;">
-            Your selection is automatically saved.
+        <div style="text-align: center; grid-column: 1 / -1; font-size: 0.92rem; color: var(--muted); padding: 12px 8px;">
+            Your selection is automatically saved. <br>
+            I was going to add "Add search filter" to <span style="font-weight: 700">Other Tweaks</span> but its <a href="https://wikipedia.org/wiki/Query_string" target="_blank" rel="noopener noreferrer" style="color: inherit;">
+                query string</a>
+                can get complicated if you add more filters, so I decided not to.
         </div>
 
     </div>
