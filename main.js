@@ -67,7 +67,7 @@
         cursor: "pointer",
         borderRadius: "50%",
       });
-      insertAfter(newTabButton, searchButton);
+      insertAfter(newTabButton, searchButton.parentNode);
 
       newTabButton.addEventListener("mouseenter", () => {
         newTabButton.style.backgroundColor = "var(--yt-spec-outline)";
